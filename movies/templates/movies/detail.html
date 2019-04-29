@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block body %}
+    <img src="{{movie.poster_url}}">
+    <h1>{{movie.title}}</h1>
+    <h2>{{movie.audience}}</h2>
+    <h3>{{movie.description}}</h3>
+    <h3>{{movie.genre}}</h3>
+    {% if user.is_authenticated %}
+    <form action="{% url 'movies:score_create' movie.id %}" method='post'>
+        {% csrf_token %}
+        {{score_form}}
+        <input type="submit" value="Submit"/>
+    </form>
+    
+    {% endif %}
+    {% for score in movie.score_set.all %}
+        <h2>{{score.content}} {{score.value}} {{score.user.username}} 
+        {% if request.user == score.user %}
+            <form action="{% url 'movies:score_delete' movie.id score.id %}" method='post'>
+                {% csrf_token %}
+                <input type="submit" value="삭제">
+            </form>
+            
+             
+        {% endif %}
+        </h2>
+        
+    {% endfor %}
+{% endblock %}

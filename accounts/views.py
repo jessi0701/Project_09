@@ -4,10 +4,21 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods, require_POST
+from .models import User
 
 from .forms import UserCustomCreationForm
 
 # Create your views here.
+def list(request):
+    users = User.objects.all()
+    return render(request, 'accounts/list.html',{'users':users})
+
+def detail(require,id):
+    user_info = User.objects.get(id=id)
+    return render(require, 'accounts/detail.html',{'user_info':user_info})
+    
+    
+    
 @require_http_methods(["GET", "POST"])
 def signup(request):
     if request.user.is_authenticated:
@@ -40,3 +51,13 @@ def login(request):
 def logout(request):
     auth_logout(request)
     return redirect('movies:list')
+    
+def follow(request, id):
+    me = request.user
+    you = User.objects.get(id=id)
+    
+    if you in me.followings.all():
+        me.followings.remove(you)
+    else:
+        me.followings.add(you)
+    return redirect('accounts:detail', id)
